@@ -111,11 +111,11 @@
     </form>
   </div>
 
- <script>
+<script>
   const form = document.getElementById("bookingForm");
   const alertBox = document.getElementById("alertBox");
 
-  form.addEventListener("submit", async function(e) {
+  form.addEventListener("submit", function(e) {
     e.preventDefault();
 
     const firstName = document.getElementById("firstName").value.trim();
@@ -128,20 +128,25 @@
       alertBox.style.color = "green";
       alertBox.textContent = "Booking submitted successfully! Generating PDF...";
 
-      // نحدد العنصر اللي راح يتحول لـ PDF
-      const element = document.querySelector(".form-container");
+      // إخفاء الزر مؤقتاً
+      const button = form.querySelector("button");
+      button.style.display = "none";
 
-      const opt = {
-        margin:       0,
-        filename:     'booking.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      // توليد PDF من النموذج
+      const options = {
+        margin: 0.5,
+        filename: 'booking.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(element).save();
+      html2pdf().set(options).from(document.querySelector(".form-container")).save().then(() => {
+        // إرجاع الزر بعد حفظ الـ PDF
+        button.style.display = "block";
+        form.reset();
+      });
 
-      form.reset();
     } else {
       alertBox.style.color = "red";
       alertBox.textContent = "Please fill in all fields.";
