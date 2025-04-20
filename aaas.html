@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Booking Form</title>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
  
   <style>
     body {
@@ -128,20 +128,18 @@
       alertBox.style.color = "green";
       alertBox.textContent = "Booking submitted successfully! Generating PDF...";
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      // نحدد العنصر اللي راح يتحول لـ PDF
+      const element = document.querySelector(".form-container");
 
-      doc.setFontSize(14);
-      doc.text("Booking Information", 20, 20);
-      doc.setFontSize(12);
-      doc.text(`First Name: ${firstName}`, 20, 40);
-      doc.text(`Last Name: ${lastName}`, 20, 50);
-      doc.text(`Email: ${email}`, 20, 60);
-      doc.text(`Appointment Date: ${appointment}`, 20, 70);
-      doc.text("Message:", 20, 80);
-      doc.text(message, 20, 90, { maxWidth: 170 });
+      const opt = {
+        margin:       0,
+        filename:     'booking.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
 
-      doc.save("booking.pdf");
+      html2pdf().set(opt).from(element).save();
 
       form.reset();
     } else {
