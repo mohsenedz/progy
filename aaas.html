@@ -115,15 +115,16 @@
         <textarea id="message" name="message" rows="4" required></textarea>
       </div>
 
-      <div class="footer-box">
-   Kindly bring this booking with you when you come to the clinic.</div>
+      <div id="pdfNote" style="display: none; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
+  Please bring this booking confirmation with you to the clinic.  
+</div>
 
       <button type="submit">Booking</button>
       <div class="alert" id="alertBox"></div>
     </form>
   </div>
 
- <script>
+<script>
   const form = document.getElementById("bookingForm");
   const alertBox = document.getElementById("alertBox");
 
@@ -141,8 +142,10 @@
       alertBox.style.color = "green";
       alertBox.textContent = "Booking submitted successfully! Generating PDF...";
 
-      // إخفاء الزر أثناء توليد PDF
+      // إخفاء الزر والإطار أثناء توليد PDF
       button.style.display = "none";
+      const note = document.getElementById("pdfNote");
+      if (note) note.style.display = "block";
 
       const element = document.getElementById("pdfContent");
 
@@ -156,8 +159,9 @@
 
       await html2pdf().set(opt).from(element).save();
 
-      // إظهار الزر مرة أخرى
+      // إظهار الزر وإخفاء الإطار بعد الانتهاء
       button.style.display = "block";
+      if (note) note.style.display = "none";
 
       form.reset();
 
