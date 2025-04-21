@@ -152,6 +152,26 @@
       alertBox.textContent = "Please fill in all fields.";
     }
   });
+
+
+// بدل عنوان "Booking Information" باسم الطبيب مثلاً:
+doc.setTextColor("#1976d2");
+doc.setFontSize(16);
+doc.text("Dr. John Smith", 20, 20); // اسم الطبيب
+
+// باقي المعلومات كالمعتاد...
+doc.setTextColor(0, 0, 0);
+doc.setFontSize(12);
+// ...
+
+// في الأسفل نضيف المستطيل والنص
+const rectY = 140; // المسافة من الأعلى
+doc.setDrawColor("#1976d2"); // لون الإطار
+doc.setLineWidth(0.5); // 0.5mm = تقريبًا 2px
+doc.rect(20, rectY, 170, 15); // (x, y, width, height)
+doc.setTextColor("#1976d2");
+doc.text("He examines in the clinic", 25, rectY + 10);
+  
 </script>
 </body>
 </html>
