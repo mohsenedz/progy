@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Booking Form</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -14,7 +16,6 @@
       height: 100vh;
       margin: 0;
     }
-
     .form-container {
       background-color: #ffffff;
       padding: 30px 40px;
@@ -22,7 +23,6 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 500px;
-      position: relative;
     }
 
     .form-container h2 {
@@ -75,93 +75,89 @@
       color: red;
       text-align: center;
     }
-
-    .bottom-box {
-      border: 2px solid #1976d2;
-      padding: 10px;
-      margin-top: 30px;
-      text-align: center;
-      color: #1976d2;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
-  <div class="form-container" id="pdfContent">
-    <h2>Dr. John Smith</h2>
+  <div class="form-container">
+    <h2>Booking Form</h2>
     <form id="bookingForm">
       <div class="form-group">
         <label for="appointment">Appointment:</label>
         <input type="date" id="appointment" name="appointment" required>
       </div>
-
       <div class="form-group">
         <label for="firstName">First Name:</label>
         <input type="text" id="firstName" name="firstName" required>
       </div>
-
       <div class="form-group">
         <label for="lastName">Last Name:</label>
         <input type="text" id="lastName" name="lastName" required>
       </div>
-
       <div class="form-group">
         <label for="email">Email Address:</label>
         <input type="email" id="email" name="email" required>
       </div>
-
       <div class="form-group">
         <label for="message">Message:</label>
         <textarea id="message" name="message" rows="4" required></textarea>
       </div>
-
       <button type="submit">Booking</button>
       <div class="alert" id="alertBox"></div>
     </form>
-
-    <div class="bottom-box">
-      He examines in the clinic
-    </div>
   </div>
 
   <script>
-    const form = document.getElementById("bookingForm");
-    const alertBox = document.getElementById("alertBox");
+  const form = document.getElementById("bookingForm");
+  const alertBox = document.getElementById("alertBox");
 
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
 
-      const firstName = document.getElementById("firstName").value.trim();
-      const lastName = document.getElementById("lastName").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const appointment = document.getElementById("appointment").value;
-      const message = document.getElementById("message").value.trim();
+    const firstName = document.getElementById("firstName").value.trim();
+    const lastName = document.getElementById("lastName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const appointment = document.getElementById("appointment").value;
+    const message = document.getElementById("message").value.trim();
 
-      if (firstName && lastName && email && message && appointment) {
-        alertBox.style.color = "green";
-        alertBox.textContent = "Booking submitted successfully! Generating PDF...";
+    if (firstName && lastName && email && message && appointment) {
+      alertBox.style.color = "green";
+      alertBox.textContent = "Booking submitted successfully! Generating PDF...";
 
-        const button = form.querySelector("button");
-        button.style.display = "none";
+      const button = form.querySelector("button");
+      button.style.display = "none";
 
-        const options = {
-          margin: 0.5,
-          filename: 'booking.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
+      // --- التعديلات المؤقتة قبل حفظ PDF ---
+      const titleEl = document.querySelector(".form-container h2");
+      const originalTitle = titleEl.textContent;
+      titleEl.textContent = "Dr. John Smith";
 
-        html2pdf().set(options).from(document.getElementById("pdfContent")).save().then(() => {
-          button.style.display = "block";
-          form.reset();
-        });
+      // إنشاء الإطار السفلي مؤقتًا
+      const bottomBox = document.createElement("div");
+      bottomBox.className = "bottom-box";
+      bottomBox.textContent = "He examines in the clinic";
+      document.getElementById("pdfContent").appendChild(bottomBox);
 
-      } else {
-        alertBox.style.color = "red";
-        alertBox.textContent = "Please fill in all fields.";
-      }
-    });
-  </script>
+      const options = {
+        margin: 0.5,
+        filename: 'booking.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(options).from(document.getElementById("pdfContent")).save().then(() => {
+        // --- إعادة الصفحة إلى حالتها الأصلية بعد حفظ PDF ---
+        titleEl.textContent = originalTitle;
+        bottomBox.remove();
+        button.style.display = "block";
+        form.reset();
+      });
+
+    } else {
+      alertBox.style.color = "red";
+      alertBox.textContent = "Please fill in all fields.";
+    }
+  });
+</script>
 </body>
 </html>
