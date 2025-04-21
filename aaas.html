@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Booking Form</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -23,6 +22,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 500px;
+      position: relative;
     }
 
     .form-container h2 {
@@ -76,37 +76,19 @@
       text-align: center;
     }
 
-    /* محتوى PDF المخفي */
-    #pdf-content {
-      display: none;
-      padding: 30px;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
-    #pdf-content h2 {
-      text-align: center;
-      color: #1976d2;
-      margin-bottom: 20px;
-    }
-
-    #pdf-content .line {
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-
-    #pdf-footer {
-      border-top: 1px solid #ccc;
+    .footer-box {
       margin-top: 30px;
-      padding-top: 10px;
-      text-align: center;
+      border: 2px solid #1976d2;
+      padding: 15px;
+      border-radius: 8px;
+      color: #333;
       font-size: 14px;
-      color: #777;
     }
   </style>
 </head>
 <body>
-  <div class="form-container">
-    <h2>Booking Form</h2>
+  <div class="form-container" id="pdfContent">
+    <h2>Dr. Ahmed Clinic</h2>
     <form id="bookingForm">
       <div class="form-group">
         <label for="appointment">Appointment:</label>
@@ -133,26 +115,20 @@
         <textarea id="message" name="message" rows="4" required></textarea>
       </div>
 
+      <div class="footer-box">
+        Please arrive 10 minutes early for your appointment. For cancellations, contact us at least 24 hours in advance.
+      </div>
+
       <button type="submit">Booking</button>
       <div class="alert" id="alertBox"></div>
     </form>
-  </div>
-
-  <!-- محتوى PDF -->
-  <div id="pdf-content">
-    <h2>Dr. Ahmed Ibrahim</h2>
-    <div class="line" id="pdf-appointment"></div>
-    <div class="line" id="pdf-name"></div>
-    <div class="line" id="pdf-email"></div>
-    <div class="line" id="pdf-message"></div>
-    <div id="pdf-footer">This is a system-generated booking confirmation.</div>
   </div>
 
   <script>
     const form = document.getElementById("bookingForm");
     const alertBox = document.getElementById("alertBox");
 
-    form.addEventListener("submit", function(e) {
+    form.addEventListener("submit", async function(e) {
       e.preventDefault();
 
       const firstName = document.getElementById("firstName").value.trim();
@@ -165,25 +141,20 @@
         alertBox.style.color = "green";
         alertBox.textContent = "Booking submitted successfully! Generating PDF...";
 
-        // تعبئة بيانات PDF
-        document.getElementById("pdf-appointment").textContent = "Appointment: " + appointment;
-        document.getElementById("pdf-name").textContent = "Name: " + firstName + " " + lastName;
-        document.getElementById("pdf-email").textContent = "Email: " + email;
-        document.getElementById("pdf-message").textContent = "Message: " + message;
-
-        const pdfContent = document.getElementById("pdf-content");
+        const element = document.getElementById("pdfContent");
 
         const opt = {
-          margin:       0,
-          filename:     'booking.pdf',
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2 },
-          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          margin: 0,
+          filename: 'booking.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(pdfContent).save();
+        await html2pdf().set(opt).from(element).save();
 
         form.reset();
+        alertBox.textContent = "";
       } else {
         alertBox.style.color = "red";
         alertBox.textContent = "Please fill in all fields.";
