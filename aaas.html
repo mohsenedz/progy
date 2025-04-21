@@ -124,42 +124,53 @@
     </form>
   </div>
 
-  <script>
-    const form = document.getElementById("bookingForm");
-    const alertBox = document.getElementById("alertBox");
+ <script>
+  const form = document.getElementById("bookingForm");
+  const alertBox = document.getElementById("alertBox");
 
-    form.addEventListener("submit", async function(e) {
-      e.preventDefault();
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-      const firstName = document.getElementById("firstName").value.trim();
-      const lastName = document.getElementById("lastName").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const appointment = document.getElementById("appointment").value;
-      const message = document.getElementById("message").value.trim();
+    const firstName = document.getElementById("firstName").value.trim();
+    const lastName = document.getElementById("lastName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const appointment = document.getElementById("appointment").value;
+    const message = document.getElementById("message").value.trim();
+    const button = form.querySelector("button");
 
-      if (firstName && lastName && email && message && appointment) {
-        alertBox.style.color = "green";
-        alertBox.textContent = "Booking submitted successfully! Generating PDF...";
+    if (firstName && lastName && email && message && appointment) {
+      alertBox.style.color = "green";
+      alertBox.textContent = "Booking submitted successfully! Generating PDF...";
 
-        const element = document.getElementById("pdfContent");
+      // إخفاء الزر أثناء توليد PDF
+      button.style.display = "none";
 
-        const opt = {
-          margin: 0,
-          filename: 'booking.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+      const element = document.getElementById("pdfContent");
 
-        await html2pdf().set(opt).from(element).save();
+      const opt = {
+        margin:       0,
+        filename:     'booking.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
 
-        form.reset();
+      await html2pdf().set(opt).from(element).save();
+
+      // إظهار الزر مرة أخرى
+      button.style.display = "block";
+
+      form.reset();
+
+      // إخفاء الرسالة بعد 3 ثوانٍ (اختياري)
+      setTimeout(() => {
         alertBox.textContent = "";
-      } else {
-        alertBox.style.color = "red";
-        alertBox.textContent = "Please fill in all fields.";
-      }
-    });
-  </script>
+      }, 3000);
+    } else {
+      alertBox.style.color = "red";
+      alertBox.textContent = "Please fill in all fields.";
+    }
+  });
+</script>
 </body>
 </html>
