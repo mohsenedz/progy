@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Booking Form</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     body {
@@ -16,6 +15,7 @@
       height: 100vh;
       margin: 0;
     }
+
     .form-container {
       background-color: #ffffff;
       padding: 30px 40px;
@@ -75,6 +75,33 @@
       color: red;
       text-align: center;
     }
+
+    /* محتوى PDF المخفي */
+    #pdf-content {
+      display: none;
+      padding: 30px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    #pdf-content h2 {
+      text-align: center;
+      color: #1976d2;
+      margin-bottom: 20px;
+    }
+
+    #pdf-content .line {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    #pdf-footer {
+      border-top: 1px solid #ccc;
+      margin-top: 30px;
+      padding-top: 10px;
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+    }
   </style>
 </head>
 <body>
@@ -85,79 +112,83 @@
         <label for="appointment">Appointment:</label>
         <input type="date" id="appointment" name="appointment" required>
       </div>
+
       <div class="form-group">
         <label for="firstName">First Name:</label>
         <input type="text" id="firstName" name="firstName" required>
       </div>
+
       <div class="form-group">
         <label for="lastName">Last Name:</label>
         <input type="text" id="lastName" name="lastName" required>
       </div>
+
       <div class="form-group">
         <label for="email">Email Address:</label>
         <input type="email" id="email" name="email" required>
       </div>
+
       <div class="form-group">
         <label for="message">Message:</label>
         <textarea id="message" name="message" rows="4" required></textarea>
       </div>
+
       <button type="submit">Booking</button>
       <div class="alert" id="alertBox"></div>
     </form>
   </div>
 
+  <!-- محتوى PDF -->
+  <div id="pdf-content">
+    <h2>Dr. Ahmed Ibrahim</h2>
+    <div class="line" id="pdf-appointment"></div>
+    <div class="line" id="pdf-name"></div>
+    <div class="line" id="pdf-email"></div>
+    <div class="line" id="pdf-message"></div>
+    <div id="pdf-footer">This is a system-generated booking confirmation.</div>
+  </div>
+
   <script>
-  const form = document.getElementById("bookingForm");
-  const alertBox = document.getElementById("alertBox");
+    const form = document.getElementById("bookingForm");
+    const alertBox = document.getElementById("alertBox");
 
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
 
-    const firstName = document.getElementById("firstName").value.trim();
-    const lastName = document.getElementById("lastName").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const appointment = document.getElementById("appointment").value;
-    const message = document.getElementById("message").value.trim();
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const appointment = document.getElementById("appointment").value;
+      const message = document.getElementById("message").value.trim();
 
-    if (firstName && lastName && email && message && appointment) {
-      alertBox.style.color = "green";
-      alertBox.textContent = "Booking submitted successfully! Generating PDF...";
+      if (firstName && lastName && email && message && appointment) {
+        alertBox.style.color = "green";
+        alertBox.textContent = "Booking submitted successfully! Generating PDF...";
 
-      const button = form.querySelector("button");
-      button.style.display = "none";
+        // تعبئة بيانات PDF
+        document.getElementById("pdf-appointment").textContent = "Appointment: " + appointment;
+        document.getElementById("pdf-name").textContent = "Name: " + firstName + " " + lastName;
+        document.getElementById("pdf-email").textContent = "Email: " + email;
+        document.getElementById("pdf-message").textContent = "Message: " + message;
 
-      // --- التعديلات المؤقتة قبل حفظ PDF ---
-      const titleEl = document.querySelector(".form-container h2");
-      const originalTitle = titleEl.textContent;
-      titleEl.textContent = "Dr. John Smith";
+        const pdfContent = document.getElementById("pdf-content");
 
-      // إنشاء الإطار السفلي مؤقتًا
-      const bottomBox = document.createElement("div");
-      bottomBox.className = "bottom-box";
-      bottomBox.textContent = "He examines in the clinic";
-      document.getElementById("pdfContent").appendChild(bottomBox);
+        const opt = {
+          margin:       0,
+          filename:     'booking.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2 },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
 
-      const options = {
-        margin: 0.5,
-        filename: 'booking.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
+        html2pdf().set(opt).from(pdfContent).save();
 
-      html2pdf().set(options).from(document.getElementById("pdfContent")).save().then(() => {
-        // --- إعادة الصفحة إلى حالتها الأصلية بعد حفظ PDF ---
-        titleEl.textContent = originalTitle;
-        bottomBox.remove();
-        button.style.display = "block";
         form.reset();
-      });
-
-    } else {
-      alertBox.style.color = "red";
-      alertBox.textContent = "Please fill in all fields.";
-    }
-  });
-</script>
+      } else {
+        alertBox.style.color = "red";
+        alertBox.textContent = "Please fill in all fields.";
+      }
+    });
+  </script>
 </body>
 </html>
